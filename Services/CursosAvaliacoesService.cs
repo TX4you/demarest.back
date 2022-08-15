@@ -13,10 +13,15 @@ namespace dema.back.Services
     public class CursosAvaliacoesService : ICursosAvaliacoesService
     {
         private readonly ICursosAvaliacoesRepository _cursosAvaliacoesRepository;
+        private readonly ICursosService _cursosService;
+        private readonly IAlunosService _alunosService;
         private readonly IMapper _mapper;
-        public CursosAvaliacoesService(ICursosAvaliacoesRepository cursosAvaliacoesRepository, IMapper mapper)
+        public CursosAvaliacoesService(ICursosAvaliacoesRepository cursosAvaliacoesRepository, ICursosService cursosService,
+                                       IAlunosService alunosService, IMapper mapper)
         {
             _cursosAvaliacoesRepository = cursosAvaliacoesRepository;
+            _cursosService = cursosService;
+            _alunosService = alunosService;
             _mapper = mapper;
         }
 
@@ -53,6 +58,12 @@ namespace dema.back.Services
             IEnumerable<CursosAvaliacoes> _cursosAvaliacoes = _cursosAvaliacoesRepository.ObterPorAlunoIdCursoId(alunoId, cursoId);
 
             _cursosAvaliacoesViewModel = _mapper.Map<List<CursosAvaliacoesViewModel>>(_cursosAvaliacoes);
+
+            if (_cursosAvaliacoesViewModel == null)
+                return null;
+
+            _cursosAvaliacoesViewModel.ForEach(u => u.Curso = _mapper.Map<CursosViewModel>(_cursosService.ObterPorId(Convert.ToInt32(u.CursosId))));
+            _cursosAvaliacoesViewModel.ForEach(u => u.Aluno = _mapper.Map<AlunosViewModel>(_alunosService.ObterPorId(Convert.ToInt32(u.AlunosId))));
 
             return _cursosAvaliacoesViewModel;
         }

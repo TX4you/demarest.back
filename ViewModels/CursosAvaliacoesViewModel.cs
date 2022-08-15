@@ -11,5 +11,8 @@ namespace dema.back.ViewModels
         public string CursosId { get; set; }
         public string AlunosId { get; set; }
         public string Nota { get; set; }
+        public CursosViewModel Curso { get; set; }
+        public AlunosViewModel Aluno { get; set; }
+
     }
 }

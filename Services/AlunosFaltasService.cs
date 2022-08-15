@@ -13,10 +13,15 @@ namespace dema.back.Services
     public class AlunosFaltasService : IAlunosFaltasService
     {
         private readonly IAlunosFaltasRepository _alunosFaltasRepository;
+        private readonly ICursosService _cursosService;
+        private readonly IAlunosService _alunosService;
         private readonly IMapper _mapper;
-        public AlunosFaltasService(IAlunosFaltasRepository alunosFaltasRepository, IMapper mapper)
+        public AlunosFaltasService(IAlunosFaltasRepository alunosFaltasRepository, ICursosService cursosService,
+                                       IAlunosService alunosService, IMapper mapper)
         {
             _alunosFaltasRepository = alunosFaltasRepository;
+            _cursosService = cursosService;
+            _alunosService = alunosService;
             _mapper = mapper;
         }
         public void Adicionar(AlunosFaltasViewModel alunoFaltaViewModel)
@@ -51,6 +56,12 @@ namespace dema.back.Services
             IEnumerable<AlunosFaltas> _alunosFaltas = _alunosFaltasRepository.ObterPorAlunoIdCursoId(alunoId, cursoId);
 
             _alunosFaltasViewModel = _mapper.Map<List<AlunosFaltasViewModel>>(_alunosFaltas);
+
+            if (_alunosFaltasViewModel == null)
+                return null;
+
+            _alunosFaltasViewModel.ForEach(u => u.Curso = _mapper.Map<CursosViewModel>(_cursosService.ObterPorId(Convert.ToInt32(u.CursosId))));
+            _alunosFaltasViewModel.ForEach(u => u.Aluno = _mapper.Map<AlunosViewModel>(_alunosService.ObterPorId(Convert.ToInt32(u.AlunosId))));
 
             return _alunosFaltasViewModel;
         }
